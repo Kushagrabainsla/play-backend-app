@@ -1,8 +1,10 @@
+import os
 from play_backend_app import app
 from flask import request, jsonify
 from .. import db
 
 # ( PUT REQUEST ) For finding matches for given userID and updating it in DB.
+# This will be called when the user refresh the feed.
 @app.route('/findMatches')
 def findMatches():
     if request.headers.get('Authorization'): 
@@ -43,6 +45,14 @@ def findMatches():
         myQuery = {"_id": userID}
         newValues = {"$set": {"connections": newConnections}}
         connections.update_one(myQuery, newValues)
+
+        return jsonify({
+            'error': False,
+            'result': {
+                'userID' : userID,
+                'token' : os.getenv("SECRET_TOKEN"),
+            }
+        })
 
     else:
         return 'Access denied.'

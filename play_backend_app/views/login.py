@@ -1,14 +1,78 @@
-from play_backend_app import app
-from flask import jsonify
+import os
+import collections
+from play_backend_app import app, db
+from flask import request, jsonify
 
-@app.route('/login')
+# This is called when a user log in, whether new user or old user, doesn't matter
+@app.route('/login', methods = ['GET', 'POST'])
 def userLogin():
-    # Some behavior of this is based on /updateuser !!
-    # Post on this endpoint when got all data
-    # to save it in backend and return desired data.
-    userID, token = 123, 'refreshedToken'
+    if request.method == 'POST':
+        peopleResponse, youtubeResponse = request.json['peopleResponse']['result'], request.json['youtubeResponse']['result']
+        userID, userName, userGender, userPhotoURL = '', '', '', ''
 
-    return jsonify({
-        'userID' : userID,
-        'token' : token,
-    })
+        for key, val in peopleResponse.items():
+            if key == 'names':
+                userName = val[0]['displayName']
+                metadata = val[0]['metadata']
+                source = metadata['source']
+                userID = source['id']
+
+            if key == 'photos':
+                userPhotoURL = val[0]['url']
+            if key == 'genders':
+                userGender = val[0]['formattedValue']
+
+        userLikes = []
+        for data in youtubeResponse['items']:
+            data_snippet = data['snippet']
+            for key, val in data_snippet.items():
+                if key == 'title':
+                    if val != 'Deleted video': userLikes.append(val)
+
+
+        # Generating a unique list of words of a user by his/her liked videos    
+        meaningless_words = ['a', 'an', 'the', 'in', 'of', 'for', 'to', 'and', 'is', 'that', 'will', 'your', 'me', 'if', 'you', 'can', 'let', 'from', 'why', 'who',
+                            'he', 'she', 'it', 'they', 'with', 'not', 'does', 'being', 'no', 'how', 'so', 'took', 'do', 'get', 'on', 'we', 'put', 'be', 'at', 'than', 'then', 'using', '']
+        unique_list = []
+        for like in userLikes:
+            li = list(like.split())
+            for letter in li:
+                if letter.isalpha() and letter.lower() not in meaningless_words:
+                    unique_list.append(letter)
+
+        # The decluttered SET of words og User's liked-videos playlist.
+        # print("User's unique set:\n", set(unique_list))
+
+        # The decluttered LIST of words og User's liked-videos playlist.
+        # print("User's unique list:\n", unique_list)
+
+        # The decluttered COUNTER of words og User's liked-videos playlist.
+        # print("User's unique counter:\n", dict(collections.Counter(unique_list)))
+        declutteredUserLikes = dict(collections.Counter(unique_list))
+        
+        profiles = db.user_profiles
+        # If user already present, just update details and likes.
+        if profiles.find_one({"_id": str(userID)}):
+            profiles.update_one({"_id": str(userID)}, {"$set": {"details": [{"user_id": userID}, {
+                "user_name": userName}, {"user_gender": userGender}, {"user_photoURL": userPhotoURL}], "likes": declutteredUserLikes}})
+
+        else:  # Else, add user.
+            profiles.insert_one({
+                "_id": str(userID),
+                "details":
+                [
+                    {"user_id": userID},
+                    {"user_name": userName},
+                    {"user_gender": userGender},
+                    {"user_photoURL": userPhotoURL}
+                ],
+                "likes": declutteredUserLikes
+            })
+
+        return jsonify({
+            'error': False,
+            'result': {
+                'userID' : userID,
+                'token' : os.getenv("SECRET_TOKEN"),
+            }
+        })
