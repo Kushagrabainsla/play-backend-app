@@ -14,11 +14,13 @@
 ### Built With
 
 * Flask
-* OAuth2.0
+* OAuth 2.0
 * MongoDB
+* Deployed on Heroku.
+* Bootstrapped by [Build-Flask-App](https://pypi.org/project/build-flask-app/)
 
 ### Prerequisites
-* **Python** should be installed on your machine.
+* **Python** and **Flask** should be installed on your machine.
 
 
 ### Setting up Dev
@@ -28,8 +30,6 @@
 git clone https://github.com/Kushagrabainsla/play-backend-app.git
 cd play-backend-app
 ```
-
-For running react development server.
 
 ```shell
 pip install -r requirements.txt
@@ -41,3 +41,5 @@ flask run
 ## Database
 
 * MongoDB is used as the Primary database, along with Redis as the secondary Database.
+
+<Br/>
