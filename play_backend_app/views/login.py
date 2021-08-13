@@ -32,7 +32,7 @@ def userLogin():
 
         # Generating a unique list of words of a user by his/her liked videos    
         meaningless_words = ['a', 'an', 'the', 'in', 'of', 'for', 'to', 'and', 'is', 'that', 'will', 'your', 'me', 'if', 'you', 'can', 'let', 'from', 'why', 'who',
-                            'he', 'she', 'it', 'they', 'with', 'not', 'does', 'being', 'no', 'how', 'so', 'took', 'do', 'get', 'on', 'we', 'put', 'be', 'at', 'than', 'then', 'using', '']
+                            'he', 'she', 'it', 'they', 'with', 'not', 'does', 'being', 'no', 'how', 'so', 'took', 'do', 'get', 'on', 'we', 'put', 'be', 'at', 'than', 'this', 'then', 'using', '']
         unique_list = []
         for like in userLikes:
             li = list(like.split())
@@ -53,20 +53,36 @@ def userLogin():
         profiles = db.user_profiles
         # If user already present, just update details and likes.
         if profiles.find_one({"_id": str(userID)}):
-            profiles.update_one({"_id": str(userID)}, {"$set": {"details": [{"user_id": userID}, {
-                "user_name": userName}, {"user_gender": userGender}, {"user_photoURL": userPhotoURL}], "likes": declutteredUserLikes}})
+            profiles.update_one(
+                { "_id": str(userID) },
+                { "$set": {
+                    "details": [
+                        {"user_id": userID},
+                        {"user_name": userName},
+                        {"user_gender": userGender},
+                        {"user_photoURL": userPhotoURL}
+                    ],
+                    "likes": declutteredUserLikes,
+                }}
+            )
 
         else:  # Else, add user.
             profiles.insert_one({
                 "_id": str(userID),
-                "details":
-                [
+                "details": [
                     {"user_id": userID},
                     {"user_name": userName},
                     {"user_gender": userGender},
                     {"user_photoURL": userPhotoURL}
                 ],
-                "likes": declutteredUserLikes
+                "likes": declutteredUserLikes,
+                "socials": {
+                    'instagram': '',
+                    'facebook': '',
+                    'twitter': '',
+                    'snapchat': '',
+                    'linkedin': '',
+                }
             })
 
         return jsonify({
