@@ -1,7 +1,6 @@
-from play_backend_app import app
-from flask import request, jsonify
-from .. import db
 import os
+from play_backend_app import app, db
+from flask import request, jsonify
 
 @app.route('/updateSocials', methods = ['GET', 'PUT'])
 def updateSocials():
@@ -11,7 +10,7 @@ def updateSocials():
             userID = request.headers.get('userID')
             
             if tokenType != 'Bearer': return 'Wrong token type.'
-            if not token: return 'Invalid Token.' # Verify the token
+            if not token or token != os.getenv('SECRET_TOKEN'): return 'Invalid Token.'
             if not userID: return 'Invalid User ID.'
             
             newInstagram, newFacebook, newTwitter, newSnapchat, newLinkedin = False, False, False, False, False

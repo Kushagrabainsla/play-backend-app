@@ -1,19 +1,18 @@
 import os
-from play_backend_app import app
+from play_backend_app import app, db
 from flask import request, jsonify
-from .. import db
 
-# ( PUT REQUEST ) For finding matches for given userID and updating it in DB.
+# ( GET REQUEST ) For finding matches for given userID and updating it in DB.
 # This will be called when the user refresh the feed.
-@app.route('/findMatches')
-def findMatches():
+@app.route('/makeMatches')
+def makeMatches():
     if request.headers.get('Authorization'): 
     
         tokenType, token = request.headers.get('Authorization').split()
         userID = request.headers.get('userID')
 
         if tokenType != 'Bearer': return 'Wrong token type.'
-        if not token: return 'Invalid Token.' # Verify the token
+        if not token or token != os.getenv('SECRET_TOKEN'): return 'Invalid Token.'
         if not userID: return 'Invalid User ID.'
         
         profiles = db.user_profiles

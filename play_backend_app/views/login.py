@@ -31,7 +31,7 @@ def userLogin():
 
 
         # Generating a unique list of words of a user by his/her liked videos    
-        meaningless_words = ['a', 'an', 'the', 'in', 'of', 'for', 'to', 'and', 'is', 'that', 'will', 'your', 'me', 'if', 'you', 'can', 'let', 'from', 'why', 'who',
+        meaningless_words = ['a', 'as', 'by', 'top', 'an', 'the', 'in', 'of', 'for', 'to', 'and', 'is', 'that', 'will', 'your', 'me', 'if', 'you', 'can', 'let', 'from', 'why', 'who',
                             'he', 'she', 'it', 'they', 'with', 'not', 'does', 'being', 'no', 'how', 'so', 'took', 'do', 'get', 'on', 'we', 'put', 'be', 'at', 'than', 'this', 'then', 'using', '']
         unique_list = []
         for like in userLikes:
@@ -40,43 +40,37 @@ def userLogin():
                 if letter.isalpha() and letter.lower() not in meaningless_words:
                     unique_list.append(letter)
 
-        # The decluttered SET of words og User's liked-videos playlist.
-        # print("User's unique set:\n", set(unique_list))
-
-        # The decluttered LIST of words og User's liked-videos playlist.
-        # print("User's unique list:\n", unique_list)
-
         # The decluttered COUNTER of words og User's liked-videos playlist.
-        # print("User's unique counter:\n", dict(collections.Counter(unique_list)))
         declutteredUserLikes = dict(collections.Counter(unique_list))
-        
+
+
         profiles = db.user_profiles
         # If user already present, just update details and likes.
         if profiles.find_one({"_id": str(userID)}):
             profiles.update_one(
-                { "_id": str(userID) },
-                { "$set": {
-                    "details": [
-                        {"user_id": userID},
-                        {"user_name": userName},
-                        {"user_gender": userGender},
-                        {"user_photoURL": userPhotoURL}
-                    ],
-                    "likes": declutteredUserLikes,
+                { '_id': str(userID) },
+                { '$set': {
+                    'details': {
+                        'userId': userID,
+                        'userName': userName,
+                        'userGender': userGender,
+                        'userPhotoURL': userPhotoURL,
+                    },
+                    'likes': declutteredUserLikes,
                 }}
             )
 
         else:  # Else, add user.
             profiles.insert_one({
-                "_id": str(userID),
-                "details": [
-                    {"user_id": userID},
-                    {"user_name": userName},
-                    {"user_gender": userGender},
-                    {"user_photoURL": userPhotoURL}
-                ],
-                "likes": declutteredUserLikes,
-                "socials": {
+                '_id': str(userID),
+                'details': {
+                    'userId': userID,
+                    'userName': userName,
+                    'userGender': userGender,
+                    'userPhotoURL': userPhotoURL,
+                },
+                'likes': declutteredUserLikes,
+                'socials': {
                     'instagram': '',
                     'facebook': '',
                     'twitter': '',
