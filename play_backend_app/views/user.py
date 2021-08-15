@@ -11,6 +11,7 @@ def profile():
         userID = request.headers.get('userID')
         
         if tokenType != 'Bearer': return 'Wrong token type.'
+        print(os.getenv('SECRET_TOKEN'))
         if not token or token != os.getenv('SECRET_TOKEN'): return 'Invalid Token.'
         if not userID: return 'Invalid User ID.'
             
