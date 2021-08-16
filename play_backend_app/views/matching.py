@@ -32,27 +32,6 @@ def makeMatches():
             if match_score > 0: return basis
             else: return False
 
-# BUG
-# -----------------------------------------------------------------------------------------------------
-
-        # newConnections = []
-        # for other_profile in profiles.find():
-        #     if other_profile['_id'] != userID:
-        #         res = are_similar(my_profile['likes'], other_profile['likes'])
-        #         if res:
-        #             newConnections.append({
-        #                 "user_id": other_profile['_id'],
-        #                 "matched_likes": res
-        #             })
-                    
-        # myQuery = {"_id": userID}
-        # newValues = {"$set": {"connections": newConnections}}
-        # connections.update_one(myQuery, newValues)
-
-# -----------------------------------------------------------------------------------------------------
-# FIX
-# -----------------------------------------------------------------------------------------------------
-
         newConnections = []
         for other_profile in profiles.find():
             if other_profile['_id'] != userID:
@@ -76,9 +55,6 @@ def makeMatches():
                 '_id': str(userID),
                 'connections': newConnections,
             })
-            
-
-# -----------------------------------------------------------------------------------------------------
 
         return jsonify({
             'error': False,
