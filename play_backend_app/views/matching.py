@@ -1,4 +1,5 @@
 import os
+from typing import Collection
 from play_backend_app import app, db
 from flask import request, jsonify
 
@@ -31,6 +32,26 @@ def makeMatches():
             if match_score > 0: return basis
             else: return False
 
+# BUG
+# -----------------------------------------------------------------------------------------------------
+
+        # newConnections = []
+        # for other_profile in profiles.find():
+        #     if other_profile['_id'] != userID:
+        #         res = are_similar(my_profile['likes'], other_profile['likes'])
+        #         if res:
+        #             newConnections.append({
+        #                 "user_id": other_profile['_id'],
+        #                 "matched_likes": res
+        #             })
+                    
+        # myQuery = {"_id": userID}
+        # newValues = {"$set": {"connections": newConnections}}
+        # connections.update_one(myQuery, newValues)
+
+# -----------------------------------------------------------------------------------------------------
+# FIX
+# -----------------------------------------------------------------------------------------------------
 
         newConnections = []
         for other_profile in profiles.find():
@@ -38,13 +59,26 @@ def makeMatches():
                 res = are_similar(my_profile['likes'], other_profile['likes'])
                 if res:
                     newConnections.append({
-                        "user_id": other_profile['_id'],
-                        "matched_likes": res
+                        'user_id': other_profile['_id'],
+                        'matched_likes': res
                     })
+        
+        # Checking whether the user is present in connections table
+        # If not present, insert new user with connections
+        # Else, just update the user with new connections
+        isUserPresent = connections.find_one({'_id': userID})  
+        if isUserPresent:
+            myQuery = {'_id': userID}
+            newValues = {'$set': {'connections': newConnections}}
+            connections.update_one(myQuery, newValues)
+        else:
+            connections.insert_one({
+                '_id': str(userID),
+                'connections': newConnections,
+            })
+            
 
-        myQuery = {"_id": userID}
-        newValues = {"$set": {"connections": newConnections}}
-        connections.update_one(myQuery, newValues)
+# -----------------------------------------------------------------------------------------------------
 
         return jsonify({
             'error': False,
