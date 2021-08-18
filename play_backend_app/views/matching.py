@@ -13,8 +13,8 @@ def makeMatches():
         userID = request.headers.get('userID')
 
         if tokenType != 'Bearer': return 'Wrong token type.'
-        if not token or token != os.getenv('SECRET_TOKEN'): return 'Invalid Token.'
-        # if not token or token != 'blruvyq362f3t9746rbvt578tbcr367b48br34t786fg47985nt27v54': return 'Invalid Token.'
+        # if not token or token != os.getenv('SECRET_TOKEN'): return 'Invalid Token.'
+        if not token or token != 'blruvyq362f3t9746rbvt578tbcr367b48br34t786fg47985nt27v54': return 'Invalid Token.'
         if not userID: return 'Invalid User ID.'
         
         profiles = db.user_profiles
@@ -60,8 +60,8 @@ def makeMatches():
             'error': False,
             'result': {
                 'userID' : userID,
-                'token' : os.getenv("SECRET_TOKEN"),
-                # 'token' : 'blruvyq362f3t9746rbvt578tbcr367b48br34t786fg47985nt27v54',
+                # 'token' : os.getenv("SECRET_TOKEN"),
+                'token' : 'blruvyq362f3t9746rbvt578tbcr367b48br34t786fg47985nt27v54',
             }
         })
 
