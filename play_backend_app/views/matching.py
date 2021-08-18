@@ -13,7 +13,7 @@ def makeMatches():
         userID = request.headers.get('userID')
 
         if tokenType != 'Bearer': return 'Wrong token type.'
-        if not token or token != os.environ('SECRET_TOKEN'): return 'Invalid Token.'
+        if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
         if not userID: return 'Invalid User ID.'
         
         profiles = db.user_profiles
@@ -59,7 +59,7 @@ def makeMatches():
             'error': False,
             'result': {
                 'userID' : userID,
-                'token' : os.environ("SECRET_TOKEN"),
+                'token' : os.environ.get("SECRET_TOKEN"),
             }
         })
 

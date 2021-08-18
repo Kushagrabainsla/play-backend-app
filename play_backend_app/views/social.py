@@ -10,7 +10,7 @@ def updateSocials():
             userID = request.headers.get('userID')
             
             if tokenType != 'Bearer': return 'Wrong token type.'
-            if not token or token != os.environ('SECRET_TOKEN'): return 'Invalid Token.'
+            if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
             if not userID: return 'Invalid User ID.'
             
             newInstagram, newFacebook, newTwitter, newSnapchat, newLinkedin = False, False, False, False, False
