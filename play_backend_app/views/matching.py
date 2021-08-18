@@ -3,7 +3,7 @@ from typing import Collection
 from play_backend_app import app, db
 from flask import request, jsonify
 
-# ( GET REQUEST ) For finding matches for given userID and updating it in DB.
+# ( GET REQUEST ) For finding matches for given userID and updating it in Database.
 # This will be called when the user refresh the feed.
 @app.route('/makeMatches')
 def makeMatches():
