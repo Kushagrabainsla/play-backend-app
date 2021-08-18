@@ -11,7 +11,7 @@ def profile():
         userID = request.headers.get('userID')
         
         if tokenType != 'Bearer': return 'Wrong token type.'
-        if not token or token != os.environ('SECRET_TOKEN'): return 'Invalid Token.'
+        if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
         if not userID: return 'Invalid User ID.'
             
         profiles = db.user_profiles
@@ -37,7 +37,7 @@ def allConnections():
         userID = request.headers.get('userID')
         
         if tokenType != 'Bearer': return 'Wrong token type.'
-        if not token or token != os.environ('SECRET_TOKEN'): return 'Invalid Token.'
+        if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
         if not userID: return 'Invalid User ID.'
 
         connections = db.user_connections

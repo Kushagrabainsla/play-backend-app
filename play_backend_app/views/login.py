@@ -83,7 +83,7 @@ def userLogin():
             'error': False,
             'result': {
                 'userID' : userID,
-                'token' : os.environ("SECRET_TOKEN"),
+                'token' : os.environ.get("SECRET_TOKEN"),
             }
         })
     return jsonify({
