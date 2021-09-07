@@ -12,6 +12,7 @@ CORS(app)
 
 
 client = MongoClient(os.environ.get("MONGO_CLIENT_ID"))
+print(os.environ.get("MONGO_CLIENT_ID"))
 db = client.user_database
 
 from .views import *
