@@ -10,7 +10,7 @@ app.config['SECRET_KEY'] = '45106758472ufg'
 socket = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 
-client = MongoClient(os.environ.get("MONGO_CLIENT_ID", connect=False))
+client = MongoClient(os.environ.get("MONGO_CLIENT_ID"), connect=False)
 db = client.user_database
 
 from .views import *
