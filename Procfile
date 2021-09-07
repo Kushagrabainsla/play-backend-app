@@ -1,1 +1,1 @@
-web: gunicorn play_backend_app:app
+web: gunicorn -k eventlet play_backend_app:app
