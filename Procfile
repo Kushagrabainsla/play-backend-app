@@ -1,1 +1,1 @@
-web: gunicorn play_backend_app:app
+web: gunicorn --worker-class eventlet -w 1 play_backend_app:app
