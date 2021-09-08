@@ -1,6 +1,6 @@
 import os
 from flask import jsonify, request
-from flask_socketio import emit, join_room
+from flask_socketio import emit
 from .. import app, socket, db
 
 
@@ -44,6 +44,76 @@ def addMessage(data):
 
     # Updation of the userMessages array.
     userMessages.find_one_and_update({'_id': 'chatMessages'}, {'$push': {'chatMessages': data}})
+
+
+def addChatInfo(data):
+    profiles = db.user_profiles
+    userChatInfo = db.user_chat_info
+
+    authorId = data['author']
+    receiverId = data['reveiver']
+
+    author = profiles.find_one({"_id": str(authorId)})
+    receiver = profiles.find_one({"_id": str(receiverId)})
+    
+    authorPhotoUrl = author['details']['userPhotoURL']
+    authorName = author['details']['userName']
+    
+    receiverPhotoUrl = receiver['details']['userPhotoURL']
+    receiverName = receiver['details']['userName']
+    
+    messageBody = data['body']
+    messageTimestamp = data['timeStamp']
+    
+    
+    authorPresent = userChatInfo.find_one({'_id': authorId}) 
+    if authorPresent:
+        newChat = {
+            'userId': receiverId,
+            'username': receiverName,
+            'userProfilePhoto': receiverPhotoUrl,
+            'lastMessageText': messageBody,
+            'lastMessageTimestamp': messageTimestamp,
+        }
+        userChatInfo.find_one_and_update({'_id': authorId}, {'$push': {'chatInfo': newChat}})
+    else:
+        userChatInfo.insert_one({
+            '_id': authorId,
+            'chatInfo': [
+                {
+                    'userId': receiverId,
+                    'username': receiverName,
+                    'userProfilePhoto': receiverPhotoUrl,
+                    'lastMessageText': messageBody,
+                    'lastMessageTimestamp': messageTimestamp,
+                }
+            ]
+        })
+
+    receiverPresent = userChatInfo.find_one({'_id': receiverId}) 
+    if receiverPresent:
+        newChat = {
+            'userId': authorId,
+            'username': authorName,
+            'userProfilePhoto': authorPhotoUrl,
+            'lastMessageText': messageBody,
+            'lastMessageTimestamp': messageTimestamp,
+        }
+        userChatInfo.find_one_and_update({'_id': receiverId}, {'$push': {'chatInfo': newChat}})
+    else:
+        userChatInfo.insert_one({
+            '_id': receiverId,
+            'chatInfo': [
+                {
+                    'userId': authorId,
+                    'username': authorName,
+                    'userProfilePhoto': authorPhotoUrl,
+                    'lastMessageText': messageBody,
+                    'lastMessageTimestamp': messageTimestamp,
+                }
+            ]
+        })
+    
 
 
 @app.route('/socket/chats')
@@ -141,22 +211,14 @@ def on_connect():
     pass
 
 
-@socket.on('join_room')
-def on_join(data):
-    room = data['room']
-    addRoomIfNotPresent(room)
- 
-    join_room(room)
-    emit('open_room', {'room': room}, broadcast=True)
-
-
 @socket.on('send_message')
 def on_chat_sent(data):
     room = data['room']
     addRoomIfNotPresent(room)
 
     addMessage(data)
-    
-    emit('message_sent', {'data': data }, broadcast=True)
+
+    addChatInfo(data)
+
     emit('private_message_sent', broadcast=True)
 
