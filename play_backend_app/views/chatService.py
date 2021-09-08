@@ -51,7 +51,7 @@ def addChatInfo(data):
     userChatInfo = db.user_chat_info
 
     authorId = data['author']
-    receiverId = data['reveiver']
+    receiverId = data['receiver']
 
     author = profiles.find_one({"_id": str(authorId)})
     receiver = profiles.find_one({"_id": str(receiverId)})
