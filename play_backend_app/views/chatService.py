@@ -68,14 +68,30 @@ def addChatInfo(data):
     
     authorPresent = userChatInfo.find_one({'_id': authorId}) 
     if authorPresent:
-        newChat = {
-            'userId': receiverId,
-            'username': receiverName,
-            'userProfilePhoto': receiverPhotoUrl,
-            'lastMessageText': messageBody,
-            'lastMessageTimestamp': messageTimestamp,
-        }
-        userChatInfo.find_one_and_update({'_id': authorId}, {'$push': {'chatInfo': newChat}})
+        chatInfoArray = authorPresent['chatInfo']
+        receiverInAuthorChats = False
+        for chatIndex in range(len(chatInfoArray)):
+            if chatInfoArray[chatIndex]['userId'] == receiverId:
+                receiverInAuthorChats = True
+                # Just update the info
+                chatInfoArray[chatIndex] = {
+                    'userId': receiverId,
+                    'username': receiverName,
+                    'userProfilePhoto': receiverPhotoUrl,
+                    'lastMessageText': messageBody,
+                    'lastMessageTimestamp': messageTimestamp,
+                }
+                break
+                
+        if not receiverInAuthorChats:
+            newChat = {
+                'userId': receiverId,
+                'username': receiverName,
+                'userProfilePhoto': receiverPhotoUrl,
+                'lastMessageText': messageBody,
+                'lastMessageTimestamp': messageTimestamp,
+            }
+            userChatInfo.find_one_and_update({'_id': authorId}, {'$push': {'chatInfo': newChat}})
     else:
         userChatInfo.insert_one({
             '_id': authorId,
@@ -92,14 +108,29 @@ def addChatInfo(data):
 
     receiverPresent = userChatInfo.find_one({'_id': receiverId}) 
     if receiverPresent:
-        newChat = {
-            'userId': authorId,
-            'username': authorName,
-            'userProfilePhoto': authorPhotoUrl,
-            'lastMessageText': messageBody,
-            'lastMessageTimestamp': messageTimestamp,
-        }
-        userChatInfo.find_one_and_update({'_id': receiverId}, {'$push': {'chatInfo': newChat}})
+        chatInfoArray = receiverPresent['chatInfo']
+        authorInReceiverChats = False
+        for chatIndex in range(len(chatInfoArray)):
+            if chatInfoArray[chatIndex]['userId'] == authorId:
+                # Just update the old info
+                chatInfoArray[chatIndex] = {
+                    'userId': authorId,
+                    'username': authorName,
+                    'userProfilePhoto': authorPhotoUrl,
+                    'lastMessageText': messageBody,
+                    'lastMessageTimestamp': messageTimestamp,
+                }
+                break
+
+        if not authorInReceiverChats:
+            newChat = {
+                'userId': authorId,
+                'username': authorName,
+                'userProfilePhoto': authorPhotoUrl,
+                'lastMessageText': messageBody,
+                'lastMessageTimestamp': messageTimestamp,
+            }
+            userChatInfo.find_one_and_update({'_id': receiverId}, {'$push': {'chatInfo': newChat}})
     else:
         userChatInfo.insert_one({
             '_id': receiverId,
@@ -214,10 +245,14 @@ def on_connect():
 @socket.on('send_message')
 def on_chat_sent(data):
     room = data['room']
+    
+    # Update the rooms
     addRoomIfNotPresent(room)
 
+    # Update the messages
     addMessage(data)
 
+    # Update the chatInfo
     addChatInfo(data)
 
     emit('private_message_sent', broadcast=True)
