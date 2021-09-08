@@ -112,7 +112,8 @@ def addChatInfo(data):
         authorInReceiverChats = False
         for chatIndex in range(len(chatInfoArray)):
             if chatInfoArray[chatIndex]['userId'] == authorId:
-                # Just update the old info
+                authorInReceiverChats = True
+                # Just update the info
                 chatInfoArray[chatIndex] = {
                     'userId': authorId,
                     'username': authorName,
@@ -171,13 +172,13 @@ def fetchChats():
             })
         else:
             return jsonify({
-            'error': True,
-            'message': 'No chat information available.'
+            'error': False,
+            'message': [],
         })
     else:
         return jsonify({
             'error': True,
-            'message': 'Access Denied.'
+            'message': 'Access Denied.',
         })
         
 
