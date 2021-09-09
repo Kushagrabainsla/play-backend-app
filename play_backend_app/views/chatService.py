@@ -81,6 +81,15 @@ def addChatInfo(data):
                     'lastMessageText': messageBody,
                     'lastMessageTimestamp': messageTimestamp,
                 }
+                # Update the array in the database.
+                userChatInfo.update_one(
+                    { '_id': authorId },
+                    {
+                        '$set': {
+                            'chatInfo': chatInfoArray
+                        }
+                    }
+                )
                 break
                 
         if not receiverInAuthorChats:
@@ -121,6 +130,15 @@ def addChatInfo(data):
                     'lastMessageText': messageBody,
                     'lastMessageTimestamp': messageTimestamp,
                 }
+                # Update the array in the database.
+                userChatInfo.update_one(
+                    { '_id': receiverId },
+                    {
+                        '$set': {
+                            'chatInfo': chatInfoArray
+                        }
+                    }
+                )
                 break
 
         if not authorInReceiverChats:
