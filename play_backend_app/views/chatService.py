@@ -66,6 +66,106 @@ def addChatInfo(data):
     messageTimestamp = data['timeStamp']
     
     
+    # authorPresent = userChatInfo.find_one({'_id': authorId}) 
+    # if authorPresent:
+    #     chatInfoArray = authorPresent['chatInfo']
+    #     receiverInAuthorChats = False
+    #     for chatIndex in range(len(chatInfoArray)):
+    #         if chatInfoArray[chatIndex]['userId'] == receiverId:
+    #             receiverInAuthorChats = True
+    #             # Just update the info
+    #             chatInfoArray[chatIndex] = {
+    #                 'userId': receiverId,
+    #                 'username': receiverName,
+    #                 'userProfilePhoto': receiverPhotoUrl,
+    #                 'lastMessageText': messageBody,
+    #                 'lastMessageTimestamp': messageTimestamp,
+    #             }
+    #             # Update the array in the database.
+    #             userChatInfo.update_one(
+    #                 { '_id': authorId },
+    #                 {
+    #                     '$set': {
+    #                         'chatInfo': chatInfoArray
+    #                     }
+    #                 }
+    #             )
+    #             break
+                
+    #     if not receiverInAuthorChats:
+    #         newChat = {
+    #             'userId': receiverId,
+    #             'username': receiverName,
+    #             'userProfilePhoto': receiverPhotoUrl,
+    #             'lastMessageText': messageBody,
+    #             'lastMessageTimestamp': messageTimestamp,
+    #         }
+    #         userChatInfo.find_one_and_update({'_id': authorId}, {'$push': {'chatInfo': newChat}})
+    # else:
+    #     userChatInfo.insert_one({
+    #         '_id': authorId,
+    #         'chatInfo': [
+    #             {
+    #                 'userId': receiverId,
+    #                 'username': receiverName,
+    #                 'userProfilePhoto': receiverPhotoUrl,
+    #                 'lastMessageText': messageBody,
+    #                 'lastMessageTimestamp': messageTimestamp,
+    #             }
+    #         ]
+    #     })
+
+    # receiverPresent = userChatInfo.find_one({'_id': receiverId}) 
+    # if receiverPresent:
+    #     chatInfoArray = receiverPresent['chatInfo']
+    #     authorInReceiverChats = False
+    #     for chatIndex in range(len(chatInfoArray)):
+    #         if chatInfoArray[chatIndex]['userId'] == authorId:
+    #             authorInReceiverChats = True
+    #             # Just update the info
+    #             chatInfoArray[chatIndex] = {
+    #                 'userId': authorId,
+    #                 'username': authorName,
+    #                 'userProfilePhoto': authorPhotoUrl,
+    #                 'lastMessageText': messageBody,
+    #                 'lastMessageTimestamp': messageTimestamp,
+    #             }
+    #             # Update the array in the database.
+    #             userChatInfo.update_one(
+    #                 { '_id': receiverId },
+    #                 {
+    #                     '$set': {
+    #                         'chatInfo': chatInfoArray
+    #                     }
+    #                 }
+    #             )
+    #             break
+
+    #     if not authorInReceiverChats:
+    #         newChat = {
+    #             'userId': authorId,
+    #             'username': authorName,
+    #             'userProfilePhoto': authorPhotoUrl,
+    #             'lastMessageText': messageBody,
+    #             'lastMessageTimestamp': messageTimestamp,
+    #         }
+    #         userChatInfo.find_one_and_update({'_id': receiverId}, {'$push': {'chatInfo': newChat}})
+    # else:
+    #     userChatInfo.insert_one({
+    #         '_id': receiverId,
+    #         'chatInfo': [
+    #             {
+    #                 'userId': authorId,
+    #                 'username': authorName,
+    #                 'userProfilePhoto': authorPhotoUrl,
+    #                 'lastMessageText': messageBody,
+    #                 'lastMessageTimestamp': messageTimestamp,
+    #             }
+    #         ]
+    #     })
+
+# ----------------------------------------------------------------------------------------------------
+
     authorPresent = userChatInfo.find_one({'_id': authorId}) 
     if authorPresent:
         chatInfoArray = authorPresent['chatInfo']
@@ -80,6 +180,7 @@ def addChatInfo(data):
                     'userProfilePhoto': receiverPhotoUrl,
                     'lastMessageText': messageBody,
                     'lastMessageTimestamp': messageTimestamp,
+                    'lastMessageSeen': True,
                 }
                 # Update the array in the database.
                 userChatInfo.update_one(
@@ -99,6 +200,7 @@ def addChatInfo(data):
                 'userProfilePhoto': receiverPhotoUrl,
                 'lastMessageText': messageBody,
                 'lastMessageTimestamp': messageTimestamp,
+                'lastMessageSeen': True,
             }
             userChatInfo.find_one_and_update({'_id': authorId}, {'$push': {'chatInfo': newChat}})
     else:
@@ -111,6 +213,7 @@ def addChatInfo(data):
                     'userProfilePhoto': receiverPhotoUrl,
                     'lastMessageText': messageBody,
                     'lastMessageTimestamp': messageTimestamp,
+                    'lastMessageSeen': True,
                 }
             ]
         })
@@ -129,6 +232,7 @@ def addChatInfo(data):
                     'userProfilePhoto': authorPhotoUrl,
                     'lastMessageText': messageBody,
                     'lastMessageTimestamp': messageTimestamp,
+                    'lastMessageSeen': False,
                 }
                 # Update the array in the database.
                 userChatInfo.update_one(
@@ -148,6 +252,7 @@ def addChatInfo(data):
                 'userProfilePhoto': authorPhotoUrl,
                 'lastMessageText': messageBody,
                 'lastMessageTimestamp': messageTimestamp,
+                'lastMessageSeen': False,
             }
             userChatInfo.find_one_and_update({'_id': receiverId}, {'$push': {'chatInfo': newChat}})
     else:
@@ -160,10 +265,59 @@ def addChatInfo(data):
                     'userProfilePhoto': authorPhotoUrl,
                     'lastMessageText': messageBody,
                     'lastMessageTimestamp': messageTimestamp,
+                    'lastMessageSeen': False,
                 }
             ]
         })
-    
+
+@app.route('/socket/markMessage', methods=['GET', 'PUT'])
+def markMessage():
+    if request.method == 'PUT' and request.headers.get('Authorization'):
+        if not request.headers.get('authorId'): return 'No Author sent.'
+        if not request.headers.get('receiverId'): return 'No receiver sent.'
+        
+        tokenType, token = request.headers.get('Authorization').split()
+        authorId = request.headers.get('authorId')
+        receiverId = request.headers.get('receiverId')
+
+        if tokenType != 'Bearer': return 'Wrong token type.'
+        if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
+        if not authorId: return 'Invalid Author.'
+        if not receiverId: return 'Invalid Receiver.'
+
+        # print('AuthorId:', authorId) # CLIENT 2
+        # print('ReceiverId:', receiverId) # CLIENT 1
+        userChatInfo = db.user_chat_info
+        authorPresent = userChatInfo.find_one({'_id': authorId}) 
+        if authorPresent:
+            chatInfoArray = authorPresent['chatInfo']
+            for chatIndex in range(len(chatInfoArray)):
+                if chatInfoArray[chatIndex]['userId'] == receiverId:
+                    # Just update the info
+                    chatInfoArray[chatIndex]['lastMessageSeen'] = True
+                    
+                    # Update the array in the database.
+                    userChatInfo.update_one(
+                        { '_id': authorId },
+                        {
+                            '$set': {
+                                'chatInfo': chatInfoArray
+                            }
+                        }
+                    )
+                    break
+        
+        return jsonify({
+            'error': False,
+            'message': 'Chat info updated',
+        })
+    else:
+        return jsonify({
+            'error': True,
+            'message': 'Access Denied.',
+        })
+
+# ----------------------------------------------------------------------------------------------------
 
 
 @app.route('/socket/chats')
