@@ -16,7 +16,7 @@ def appInfo():
 		'Description': 'RESTful API endpoints and backend service for play.',
 		'routes': {
 			'public': 3,
-			'protected': 8,
+			'protected': 9,
       	},
 		'sockets': 2,
 	})
