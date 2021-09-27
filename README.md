@@ -5,8 +5,9 @@
 
 <Br/>
 
-> Social media website which matches users on the basis of their internet preferences and likes.
+> RESTful API endpoints & backend service for [Play](https://officialplay.me).
 
+<Br/>
 
 ## Developing
 
@@ -16,11 +17,13 @@
 * Flask
 * OAuth 2.0
 * MongoDB
+* Socket.io
 * Deployed on Heroku.
 * Bootstrapped by [Build-Flask-App](https://pypi.org/project/build-flask-app/)
 
+
 ### Prerequisites
-* **Python** and **Flask** should be installed on your machine.
+* **Python** should be installed on your machine.
 
 
 ### Setting up Dev
@@ -33,13 +36,14 @@ cd play-backend-app
 
 ```shell
 pip install -r requirements.txt
-export FLASK_APP=play_backend_app
-export FLASK_ENV=development
-flask run
+bash bootDev.sh
 ```
+<Br/>
 
-## Database
+## Public endpoints
 
-* MongoDB is used as the Primary database, along with Redis as the secondary Database.
+* https://play-backend-app.herokuapp.com
+* https://play-backend-app.herokuapp.com/info
+* https://play-backend-app.herokuapp.com/socket/socketStatus
 
 <Br/>
