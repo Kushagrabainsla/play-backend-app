@@ -37,14 +37,23 @@ def fetchRoomsFromDatabase():
         'message': chatRooms,
     })
     
-    
+
 def addMessage(data):
-    # Pointer to user messages collection
     userMessages = db.user_messages
-
-    # Updation of the userMessages array.
-    userMessages.find_one_and_update({'_id': 'chatMessages'}, {'$push': {'chatMessages': data}})
-
+    
+    room = data['room']
+    roomPresent = userMessages.find_one({ '_id': room })
+    
+    # If room already present, just push the message
+    if roomPresent:
+        userMessages.find_one_and_update({ '_id': room }, { '$push': { 'messages': data } })
+    # Else, create a new key-value pair.
+    else:
+        userMessages.insert_one({
+            '_id': room,
+            'messages': [ data ],
+        })
+        
 
 def addChatInfo(data):
     profiles = db.user_profiles
@@ -249,7 +258,6 @@ def fetchChats():
             'message': 'Access Denied.',
         })
         
-
 @app.route('/socket/messages')
 def fetchMesseges():
     if request.method == 'GET' and request.headers.get('Authorization'):
@@ -265,13 +273,13 @@ def fetchMesseges():
         # Pointer to the user_messages collections
         userMessages = db.user_messages
 
-        # Pointer to the array of chatMessages.
-        chatMessagesDocument = userMessages.find_one({'_id': 'chatMessages'})
-        chatMessages = chatMessagesDocument['chatMessages']
+        # Pointer to the array of messages of given room.
+        chatMessagesDocument = userMessages.find_one({ '_id': room })
+        if chatMessagesDocument:
+            messagesOfGivenRoom = chatMessagesDocument['messages']
+        else:
+            messagesOfGivenRoom = []
         
-        messagesOfGivenRoom = [message for message in chatMessages if message['room'] == room]
-
-
         return jsonify({
             'error': False,
             'message': messagesOfGivenRoom,
