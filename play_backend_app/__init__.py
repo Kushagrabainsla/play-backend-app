@@ -15,4 +15,4 @@ client = MongoClient(os.environ.get("MONGO_CLIENT_ID"))
 db = client['user_database']
 
 
-from .views import *
+from .routes import *
