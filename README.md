@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Kushagrabainsla/play/master/public/playLogo.ico" alt="Play Logo" width="200" align="right">
+<img src="https://github.com/Kushagrabainsla/play/blob/master/public/playLogo192.png?raw=true" alt="Play Logo" width="200" align="right">
 
 
 # Play-backend-app &middot; ![Python](https://img.shields.io/badge/Language-Python-blue?style=flat&logo=python) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/your/your-project/blob/master/LICENSE)
