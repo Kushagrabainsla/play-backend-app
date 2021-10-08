@@ -88,5 +88,5 @@ def userLogin():
         })
     return jsonify({
         'error': True,
-        'errorMessage': 'Wrong request method !!',
+        'errorMessage': 'Invalid request method.',
     })

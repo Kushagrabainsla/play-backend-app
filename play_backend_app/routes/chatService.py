@@ -262,13 +262,25 @@ def fetchChats():
 def fetchMesseges():
     if request.method == 'GET' and request.headers.get('Authorization'):
 
-        if not request.headers.get('room'): return 'Room Required.'
+        if not request.headers.get('room'):
+            return jsonify({
+                'error': True,
+                'message': 'Invalid room.'
+            }) 
+
         room = request.headers.get('room')
 
         tokenType, token = request.headers.get('Authorization').split()
-        if tokenType != 'Bearer': return 'Wrong token type.'
-        if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
-
+        if tokenType != 'Bearer':
+            return jsonify({
+                'error': True,
+                'message': 'Invalid token type.'
+            }) 
+        if not token or token != os.environ.get('SECRET_TOKEN'):
+            return jsonify({
+                'error': True,
+                'message': 'Invalid token.'
+            }) 
 
         # Pointer to the user_messages collections
         userMessages = db.user_messages
@@ -297,8 +309,16 @@ def fetchRooms():
 
         room = request.headers.get('room')
         tokenType, token = request.headers.get('Authorization').split()
-        if tokenType != 'Bearer': return 'Wrong token type.'
-        if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
+        if tokenType != 'Bearer':
+            return jsonify({
+                'error': True,
+                'message': 'Invalid token type.'
+            }) 
+        if not token or token != os.environ.get('SECRET_TOKEN'):
+            return jsonify({
+                'error': True,
+                'message': 'Invalid token'
+            })
         
         addRoomIfNotPresent(room)
         return fetchRoomsFromDatabase()

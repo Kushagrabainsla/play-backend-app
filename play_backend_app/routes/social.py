@@ -52,9 +52,15 @@ def updateSocials():
                 })
             return jsonify({
                 'error': True,
-                'errorMessage': 'No profile available !!'
+                'errorMessage': 'No profile found.'
             })
         else:
-            return 'Access denied.'
+            return jsonify({
+                'error': True,
+                'message' : 'Invalid authorization.' 
+            })
     else:
-        return 'Access denied.'
+        return jsonify({
+            'error': True,
+            'message' : 'Invalid request method.' 
+        })

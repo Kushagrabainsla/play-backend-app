@@ -20,4 +20,16 @@
     -webkit-text-fill-color: transparent;
     -moz-background-clip: text;
     -moz-text-fill-color: transparent;
+    box-shadow: 3px 3px 10px lightblue;
+    padding: 50px 50px 70px 50px;
+    border-radius: 20px;
+}
+
+@keyframes backgroundGradient {
+    0% {
+        background-position: left;
+    }
+    100% {
+        background-position: right;
+    }
 }
