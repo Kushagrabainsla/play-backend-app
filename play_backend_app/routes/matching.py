@@ -64,4 +64,7 @@ def makeMatches():
         })
 
     else:
-        return 'Access denied.'
+        return jsonify({
+            'error': True,
+            'message' : 'Invalid request method.' 
+        })
