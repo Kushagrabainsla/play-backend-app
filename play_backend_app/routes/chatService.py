@@ -1,7 +1,7 @@
 import os
 from flask import jsonify, request
 from flask_socketio import emit
-from .. import app, socket, db
+from .. import app, socket, db, limiter
 
 
 @app.route('/socket/socketStatus')
@@ -180,6 +180,7 @@ def addChatInfo(data):
         })
 
 @app.route('/socket/markMessage', methods=['GET', 'PUT'])
+@limiter.exempt
 def markMessage():
     if request.method == 'PUT' and request.headers.get('Authorization'):
         if not request.headers.get('authorId'): return 'No Author sent.'
@@ -226,6 +227,7 @@ def markMessage():
 
 
 @app.route('/socket/chats')
+@limiter.exempt
 def fetchChats():
     if request.method == 'GET' and request.headers.get('Authorization'):
         
@@ -259,6 +261,7 @@ def fetchChats():
         })
         
 @app.route('/socket/messages')
+@limiter.exempt
 def fetchMesseges():
     if request.method == 'GET' and request.headers.get('Authorization'):
 
@@ -304,6 +307,7 @@ def fetchMesseges():
 
 
 @app.route('/socket/rooms', methods=['GET', 'POST'])
+@limiter.exempt
 def fetchRooms():
     if request.method == 'POST' and request.headers.get('Authorization'):
 
