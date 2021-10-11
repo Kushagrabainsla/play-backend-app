@@ -1,12 +1,14 @@
 import os
+import logging
 from flask import Flask
 from flask_cors import CORS
 from pymongo import MongoClient
 from flask_socketio import SocketIO
 
+logging.basicConfig(filename='error.log')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '45106758472ufg9vqrehvr7v9e8qvqhwe'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 socket = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 
