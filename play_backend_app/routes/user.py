@@ -84,7 +84,8 @@ def allowed_file(filename):
 
 @app.route('/uploads/<filename>')
 def downloadFile(filename):
-    return send_from_directory(os.path.join(app.root_path, 'uploads'), filename=filename)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename=filename)
+    # return send_from_directory(os.path.join(app.root_path, 'uploads'), filename=filename)
 
 @app.route('/upload', methods=['GET', 'POST'])
 def uploadfile():
@@ -106,11 +107,11 @@ def uploadfile():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         fileUrl = url_for('downloadFile', filename=filename)
+        print(fileUrl) # Just save this
         # Update the url for the saved image in the database
         
         return jsonify({
             'error': False,
-            'fileUrl': fileUrl,
             'message': 'Image Updated successfully.'
         })
     else:
