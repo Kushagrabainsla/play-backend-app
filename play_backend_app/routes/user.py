@@ -97,16 +97,12 @@ def uploadfile():
             if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
             if not userID: return 'Invalid User ID.' 
 
-            userName = request.form.get('userName')
-            userBio = request.form.get('userBio')
-            file = request.files.get('userImage')
+            newUserName, newUserBio, newUserGender, newUserPhotoURL = False, False, False, False
 
-            if not file or file.filename == '': 
-                return jsonify({
-                    'error': True,
-                    'message': 'File not present.'
-                })
-            
+            if request.form.get('userName'): newUserName = request.form.get('userName')
+            if request.form.get('userBio'): newUserBio = request.form.get('userBio')
+
+            file = request.files.get('userImage')
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 try:
@@ -115,13 +111,32 @@ def uploadfile():
                     os.mkdir(app.config['UPLOAD_FOLDER'])
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            fileUrl = url_for('downloadFile', filename=filename)
-            print(userName, userBio, fileUrl)
-            # Update the url for the saved image in the database
+                newUserPhotoURL = url_for('downloadFile', filename=filename)
+
+            
+            profiles = db.user_profiles
+            profile = profiles.find_one({"_id": str(userID)})
+            if profile:
+                userName = newUserName if newUserName else profile['details']['userName']
+                userGender = newUserGender if newUserGender else profile['details']['userGender']
+                userPhotoURL = newUserPhotoURL if newUserPhotoURL else profile['details']['userPhotoURL']
+                profiles.update_one(
+                    {"_id": str(userID)},
+                    {"$set":
+                        {
+                            'details': {
+                                'userId': userID,
+                                'userName': userName,
+                                'userGender': userGender,
+                                'userPhotoURL': userPhotoURL,
+                            },
+                        }
+                    }
+                )
             
             return jsonify({
                 'error': False,
-                'message': 'Image Updated successfully.'
+                'message': 'Profile Updated successfully.'
             })
         else:
             return jsonify({

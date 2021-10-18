@@ -15,8 +15,8 @@ def appInfo():
   		'author': 'Kushagra Bainsla',
 		'Description': 'RESTful API endpoints and backend service for play.',
 		'routes': {
-			'public': 3,
-			'protected': 9,
+			'public': 4,
+			'protected': 10,
       	},
 		'sockets': 2,
 	})
