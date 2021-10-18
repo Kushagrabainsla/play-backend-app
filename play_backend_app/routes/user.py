@@ -111,7 +111,7 @@ def uploadfile():
                     os.mkdir(app.config['UPLOAD_FOLDER'])
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-                newUserPhotoURL = url_for('downloadFile', filename=filename)
+                newUserPhotoURL = 'http://play-backend-app.herokuapp.com' + url_for('downloadFile', filename=filename)
 
             
             profiles = db.user_profiles
