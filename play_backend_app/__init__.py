@@ -12,7 +12,6 @@ from flask_limiter.util import get_remote_address
 logging.basicConfig(filename='error.log')
 
 app = Flask(__name__)
-# app.config['UPLOAD_FOLDER'] = './play_backend_app/uploads'
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 socket = SocketIO(app, cors_allowed_origins="*")
