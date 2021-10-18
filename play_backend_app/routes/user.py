@@ -97,8 +97,8 @@ def uploadfile():
             if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
             if not userID: return 'Invalid User ID.' 
 
-            userName = request.files.get('userName')
-            userBio = request.files.get('userBio')
+            userName = request.form.get('userName')
+            userBio = request.form.get('userBio')
             file = request.files.get('userImage')
 
             if not file or file.filename == '': 
