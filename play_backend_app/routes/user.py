@@ -89,30 +89,45 @@ def downloadFile(filename):
 @app.route('/user/update', methods=['PUT'])
 def uploadfile():
     if request.method == 'PUT':
+        if request.headers.get('Authorization'):
+            tokenType, token = request.headers.get('Authorization').split()
+            userID = request.headers.get('userID')
+            
+            if tokenType != 'Bearer': return 'Wrong token type.'
+            if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
+            if not userID: return 'Invalid User ID.' 
 
-        file = request.files.get('image')
-        if not file or file.filename == '': 
+            userName = request.files.get('userName')
+            userBio = request.files.get('userBio')
+            file = request.files.get('userImage')
+
+            if not file or file.filename == '': 
+                return jsonify({
+                    'error': True,
+                    'message': 'File not present.'
+                })
+            
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                try:
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                except:
+                    os.mkdir(app.config['UPLOAD_FOLDER'])
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            fileUrl = url_for('downloadFile', filename=filename)
+            print(userName, userBio, fileUrl)
+            # Update the url for the saved image in the database
+            
+            return jsonify({
+                'error': False,
+                'message': 'Image Updated successfully.'
+            })
+        else:
             return jsonify({
                 'error': True,
-                'message': 'File not present.'
+                'message' : 'Invalid authorization.' 
             })
-        
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            try:
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            except:
-                os.mkdir(app.config['UPLOAD_FOLDER'])
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-        fileUrl = url_for('downloadFile', filename=filename)
-        print(fileUrl)
-        # Update the url for the saved image in the database
-        
-        return jsonify({
-            'error': False,
-            'message': 'Image Updated successfully.'
-        })
     else:
         return jsonify({
             'error': True,
