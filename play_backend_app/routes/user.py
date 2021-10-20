@@ -78,9 +78,11 @@ def allConnections():
 
 
 def allowed_file(filename):
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+    if '.' in filename:
+        extension = filename.split('.')[-1]
+        if extension.lower() in ALLOWED_EXTENSIONS: return True
+    return False
 
 @app.route('/uploads/<filename>')
 def downloadFile(filename):
@@ -104,14 +106,16 @@ def uploadfile():
 
             file = request.files.get('userImage')
             if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
+                extension = file.filename.split('.')[-1]
+                newFilename = userID + '.' + extension
+                filename = secure_filename(newFilename)
                 try:
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 except:
                     os.mkdir(app.config['UPLOAD_FOLDER'])
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-                newUserPhotoURL = 'http://play-backend-app.herokuapp.com' + url_for('downloadFile', filename=filename)
+                newUserPhotoURL = 'https://play-backend-app.herokuapp.com' + url_for('downloadFile', filename=filename)
 
             
             profiles = db.user_profiles
