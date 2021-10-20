@@ -179,6 +179,14 @@ def addChatInfo(data):
             ]
         })
 
+def refreshedChatInfo(chatInfo):
+    profiles = db.user_profiles
+    for chat in chatInfo:
+        chatProfile = profiles.find_one({'_id': chat['userId']}) 
+        chat['userProfilePhoto'] = chatProfile['details']['userPhotoURL']
+        chat['username'] = chatProfile['details']['userName']
+    return chatInfo
+    
 @app.route('/socket/markMessage', methods=['GET', 'PUT'])
 @limiter.exempt
 def markMessage():
@@ -230,9 +238,7 @@ def markMessage():
 @limiter.exempt
 def fetchChats():
     if request.method == 'GET' and request.headers.get('Authorization'):
-        
-        if not request.headers.get('userId'): return 'No user sent.'
-        
+                
         tokenType, token = request.headers.get('Authorization').split()
         userId = request.headers.get('userId')
 
@@ -240,11 +246,11 @@ def fetchChats():
         if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
         if not userId: return 'Invalid User.'
         
-
         userChatInfo = db.user_chat_info
         userChatInfoDocument = userChatInfo.find_one({'_id': userId}) 
+
         if userChatInfoDocument:
-            userChatInfoArray = userChatInfoDocument['chatInfo']
+            userChatInfoArray = refreshedChatInfo(userChatInfoDocument['chatInfo'])
             return jsonify({
                 'error': False,
                 'message': userChatInfoArray
