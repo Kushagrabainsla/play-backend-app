@@ -12,9 +12,21 @@ def makeMatches():
         tokenType, token = request.headers.get('Authorization').split()
         userID = request.headers.get('userID')
 
-        if tokenType != 'Bearer': return 'Wrong token type.'
-        if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
-        if not userID: return 'Invalid User ID.'
+        if tokenType != 'Bearer':
+            return jsonify({
+                'error': True,
+                'message' : 'Invalid Token Type' 
+            })
+        if not token or token != os.environ.get('SECRET_TOKEN'):
+            return jsonify({
+                'error': True,
+                'message' : 'Invalid Token.' 
+            })
+        if not userID: 
+            return jsonify({
+                'error': True,
+                'message' : 'Invalid User ID.' 
+            })
         
         profiles = db.user_profiles
         connections = db.user_connections
@@ -40,10 +52,7 @@ def makeMatches():
                         'user_id': other_profile['_id'],
                         'matched_likes': res
                     })
-        
-        # Checking whether the user is present in connections table
-        # If not present, insert new user with connections
-        # Else, just update the user with new connections
+
         isUserPresent = connections.find_one({'_id': userID})  
         if isUserPresent:
             myQuery = {'_id': userID}

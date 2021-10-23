@@ -8,7 +8,7 @@ from flask import request, jsonify
 def userLogin():
     if request.method == 'POST':
         peopleResponse, youtubeResponse = request.json['peopleResponse']['result'], request.json['youtubeResponse']['result']
-        userID, userName, userGender, userPhotoURL = '', '', '', ''
+        userID, userName, userBio, userGender, userPhotoURL = '', '', '', '', ''
 
         for key, val in peopleResponse.items():
             if key == 'names':
@@ -43,29 +43,23 @@ def userLogin():
         # The decluttered COUNTER of words og User's liked-videos playlist.
         declutteredUserLikes = dict(collections.Counter(unique_list))
 
-
         profiles = db.user_profiles
-        # If user already present, just update details and likes.
-        if profiles.find_one({"_id": str(userID)}):
+        userPresent = profiles.find_one({"_id": str(userID)})
+
+        if userPresent:
             profiles.update_one(
                 { '_id': str(userID) },
                 { '$set': {
-                    'details': {
-                        'userId': userID,
-                        'userName': userName,
-                        'userGender': userGender,
-                        'userPhotoURL': userPhotoURL,
-                    },
                     'likes': declutteredUserLikes,
                 }}
             )
-
-        else:  # Else, add user.
+        else:
             profiles.insert_one({
                 '_id': str(userID),
                 'details': {
                     'userId': userID,
                     'userName': userName,
+                    'userBio': userBio,
                     'userGender': userGender,
                     'userPhotoURL': userPhotoURL,
                 },
