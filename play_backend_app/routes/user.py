@@ -1,6 +1,6 @@
 import os
 from play_backend_app import app
-from .. import db
+from .. import db, bucket
 from flask import request, jsonify, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 
@@ -105,19 +105,27 @@ def uploadfile():
             if request.form.get('userBio'): newUserBio = request.form.get('userBio')
 
             file = request.files.get('userImage')
+            # if file and allowed_file(file.filename):
+            #     extension = file.filename.split('.')[-1]
+            #     newFilename = userID + '.' + extension
+            #     filename = secure_filename(newFilename)
+            #     try:
+            #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            #     except:
+            #         os.mkdir(app.config['UPLOAD_FOLDER'])
+            #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            #     newUserPhotoURL = 'https://play-backend-app.herokuapp.com' + url_for('downloadFile', filename=filename)
+                
             if file and allowed_file(file.filename):
                 extension = file.filename.split('.')[-1]
                 newFilename = userID + '.' + extension
-                filename = secure_filename(newFilename)
-                try:
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                except:
-                    os.mkdir(app.config['UPLOAD_FOLDER'])
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                blob = bucket.blob('userProfilePhoto/' + newFilename)
+                blob.upload_from_file(file)
+                blob.make_public()
+                newUserPhotoURL = blob.public_url
 
-                newUserPhotoURL = 'https://play-backend-app.herokuapp.com' + url_for('downloadFile', filename=filename)
-
-            
+            print(newUserName, newUserBio, newUserGender, newUserPhotoURL)
             profiles = db.user_profiles
             profile = profiles.find_one({"_id": str(userID)})
             if profile:
@@ -152,3 +160,4 @@ def uploadfile():
             'error': True,
             'message': 'Invalid request method.'
         })
+
