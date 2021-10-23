@@ -1,6 +1,5 @@
 import os
-from play_backend_app import app
-from .. import db, bucket
+from .. import app, db, bucket
 from flask import request, jsonify, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 
@@ -12,9 +11,21 @@ def profile():
             tokenType, token = request.headers.get('Authorization').split()
             userID = request.headers.get('userID')
             
-            if tokenType != 'Bearer': return 'Wrong token type.'
-            if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
-            if not userID: return 'Invalid User ID.'
+            if tokenType != 'Bearer':
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid Token Type' 
+                })
+            if not token or token != os.environ.get('SECRET_TOKEN'):
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid Token.' 
+                })
+            if not userID: 
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid User ID.' 
+                })
                 
             profiles = db.user_profiles
             res = profiles.find_one({"_id": str(userID)})
@@ -47,9 +58,21 @@ def allConnections():
             tokenType, token = request.headers.get('Authorization').split()
             userID = request.headers.get('userID')
             
-            if tokenType != 'Bearer': return 'Wrong token type.'
-            if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
-            if not userID: return 'Invalid User ID.'
+            if tokenType != 'Bearer':
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid Token Type' 
+                })
+            if not token or token != os.environ.get('SECRET_TOKEN'):
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid Token.' 
+                })
+            if not userID: 
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid User ID.' 
+                })
 
             connections = db.user_connections
             res = connections.find_one({"_id": str(userID)})
@@ -84,10 +107,7 @@ def allowed_file(filename):
         if extension.lower() in ALLOWED_EXTENSIONS: return True
     return False
 
-@app.route('/uploads/<filename>')
-def downloadFile(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename=filename)
-
+# ( PUT REQUEST ) For updating user's proflie
 @app.route('/user/update', methods=['PUT'])
 def uploadfile():
     if request.method == 'PUT':
@@ -95,9 +115,21 @@ def uploadfile():
             tokenType, token = request.headers.get('Authorization').split()
             userID = request.headers.get('userID')
             
-            if tokenType != 'Bearer': return 'Wrong token type.'
-            if not token or token != os.environ.get('SECRET_TOKEN'): return 'Invalid Token.'
-            if not userID: return 'Invalid User ID.' 
+            if tokenType != 'Bearer':
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid Token Type' 
+                })
+            if not token or token != os.environ.get('SECRET_TOKEN'):
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid Token.' 
+                })
+            if not userID: 
+                return jsonify({
+                    'error': True,
+                    'message' : 'Invalid User ID.' 
+                })
 
             newUserName, newUserBio, newUserGender, newUserPhotoURL = False, False, False, False
 
@@ -105,17 +137,6 @@ def uploadfile():
             if request.form.get('userBio'): newUserBio = request.form.get('userBio')
 
             file = request.files.get('userImage')
-            # if file and allowed_file(file.filename):
-            #     extension = file.filename.split('.')[-1]
-            #     newFilename = userID + '.' + extension
-            #     filename = secure_filename(newFilename)
-            #     try:
-            #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            #     except:
-            #         os.mkdir(app.config['UPLOAD_FOLDER'])
-            #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-            #     newUserPhotoURL = 'https://play-backend-app.herokuapp.com' + url_for('downloadFile', filename=filename)
                 
             if file and allowed_file(file.filename):
                 extension = file.filename.split('.')[-1]
@@ -125,11 +146,11 @@ def uploadfile():
                 blob.make_public()
                 newUserPhotoURL = blob.public_url
 
-            print(newUserName, newUserBio, newUserGender, newUserPhotoURL)
             profiles = db.user_profiles
             profile = profiles.find_one({"_id": str(userID)})
             if profile:
                 userName = newUserName if newUserName else profile['details']['userName']
+                userBio = newUserBio if newUserBio else profile['details']['userBio']
                 userGender = newUserGender if newUserGender else profile['details']['userGender']
                 userPhotoURL = newUserPhotoURL if newUserPhotoURL else profile['details']['userPhotoURL']
                 profiles.update_one(
@@ -139,6 +160,7 @@ def uploadfile():
                             'details': {
                                 'userId': userID,
                                 'userName': userName,
+                                'userBio': userBio,
                                 'userGender': userGender,
                                 'userPhotoURL': userPhotoURL,
                             },
