@@ -10,7 +10,7 @@ def appInfo():
 	return jsonify({
 		'error': False,
   		'allSystemsWorkingFine': True,
-  		'version': '0.0.2',
+  		'version': '0.1.0',
 		'name': 'play-backend-app',
   		'author': 'Kushagra Bainsla',
 		'Description': 'RESTful API endpoints and backend service for play.',

@@ -2,7 +2,7 @@ import os
 from play_backend_app import app, db
 from flask import request, jsonify
 
-@app.route('/updateSocials', methods = ['GET', 'PUT'])
+@app.route('/v1/updateSocials', methods = ['GET', 'PUT'])
 def updateSocials():
     if request.method == 'PUT':
         if request.headers.get('Authorization'): 

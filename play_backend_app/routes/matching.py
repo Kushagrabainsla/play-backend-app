@@ -5,7 +5,7 @@ from flask import request, jsonify
 
 # ( GET REQUEST ) For finding matches for given userID and updating it in Database.
 # This will be called when the user refresh the feed.
-@app.route('/makeMatches')
+@app.route('/v1/makeMatches')
 def makeMatches():
     if request.headers.get('Authorization'): 
     

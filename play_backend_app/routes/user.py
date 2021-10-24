@@ -4,7 +4,7 @@ from flask import request, jsonify, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 
 # ( GET REQUEST ) For getting user's profile details.
-@app.route('/user/profile')
+@app.route('/v1/user/profile')
 def profile():
     if request.method == 'GET':
         if request.headers.get('Authorization'): 
@@ -51,7 +51,7 @@ def profile():
         })
 
 # ( GET REQUEST ) For getting user's connections.
-@app.route('/user/connections')
+@app.route('/v1/user/connections')
 def allConnections():
     if request.method == 'GET':
         if request.headers.get('Authorization'): 
@@ -108,7 +108,7 @@ def allowed_file(filename):
     return False
 
 # ( PUT REQUEST ) For updating user's proflie
-@app.route('/user/update', methods=['PUT'])
+@app.route('/v1/user/update', methods=['PUT'])
 def uploadfile():
     if request.method == 'PUT':
         if request.headers.get('Authorization'):
