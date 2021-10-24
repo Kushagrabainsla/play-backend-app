@@ -187,7 +187,7 @@ def refreshedChatInfo(chatInfo):
         chat['username'] = chatProfile['details']['userName']
     return chatInfo
     
-@app.route('/socket/markMessage', methods=['GET', 'PUT'])
+@app.route('/v1/socket/markMessage', methods=['GET', 'PUT'])
 @limiter.exempt
 def markMessage():
     if request.method == 'PUT' and request.headers.get('Authorization'):
@@ -234,7 +234,7 @@ def markMessage():
 # ----------------------------------------------------------------------------------------------------
 
 
-@app.route('/socket/chats')
+@app.route('/v1/socket/chats')
 @limiter.exempt
 def fetchChats():
     if request.method == 'GET' and request.headers.get('Authorization'):
@@ -266,7 +266,7 @@ def fetchChats():
             'message': 'Access Denied.',
         })
         
-@app.route('/socket/messages')
+@app.route('/v1/socket/messages')
 @limiter.exempt
 def fetchMesseges():
     if request.method == 'GET' and request.headers.get('Authorization'):
@@ -312,7 +312,7 @@ def fetchMesseges():
         }) 
 
 
-@app.route('/socket/rooms', methods=['GET', 'POST'])
+@app.route('/v1/socket/rooms', methods=['GET', 'POST'])
 @limiter.exempt
 def fetchRooms():
     if request.method == 'POST' and request.headers.get('Authorization'):

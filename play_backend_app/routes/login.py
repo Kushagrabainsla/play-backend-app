@@ -4,7 +4,7 @@ from play_backend_app import app, db
 from flask import request, jsonify
 
 # This is called when a user log in, whether new user or old user, doesn't matter
-@app.route('/login', methods = ['GET', 'POST'])
+@app.route('/v1/login', methods = ['GET', 'POST'])
 def userLogin():
     if request.method == 'POST':
         peopleResponse, youtubeResponse = request.json['peopleResponse']['result'], request.json['youtubeResponse']['result']
